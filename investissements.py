@@ -39,7 +39,7 @@ invest_values = col1.number_input(
 )
 col2.metric(
     "Durée de l'investissement en année",
-    (end_date.year - start_date.year)
+    round((end_date - start_date).days / 365.25, 2) 
 )
 total_invest = col3.metric(
     "Argent total investi", 
