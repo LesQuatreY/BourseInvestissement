@@ -33,7 +33,10 @@ end_date = col2.date_input(
     "Fin d'investissement :",
     value = datetime.datetime.now(), min_value = start_date, max_value = datetime.datetime.now()
     )
-symbol = col3.text_input("Symbole du cours étudié souhaité :", value = "^NDX")
+symbol_list = {"CAC40" : "^FCHI", "Nasdaq" : "^NDX", "Dow Jones" : "^DJI", "Apple": "AAPL", "custom" :""}
+indice = col3.selectbox("Cours souhaité :", symbol_list.keys())
+if indice=="custom": symbol_list["custom"] = col3.text_input("Symbole du cours souhaité :", value = "^NDX")
+symbol = symbol_list[indice]
 invest_values = col1.number_input(
     "Argent investi chaque mois :", value=50, min_value=0
 )
