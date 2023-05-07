@@ -33,7 +33,14 @@ end_date = col2.date_input(
     "Fin d'investissement :",
     value = datetime.datetime.now(), min_value = start_date, max_value = datetime.datetime.now()
     )
-symbol_list = {"CAC40" : "^FCHI", "Nasdaq" : "^NDX", "Dow Jones" : "^DJI", "Apple": "AAPL", "custom" :""}
+symbol_list = {
+    "CAC40" : "^FCHI", 
+    "Nasdaq" : "^NDX", 
+    "Dow Jones" : "^DJI", 
+    "S&P 500": "^GSPC",
+    "Apple": "AAPL", 
+    "custom" :""}
+
 indice = col3.selectbox("Cours souhaité :", symbol_list.keys())
 if indice=="custom": symbol_list["custom"] = col3.text_input("Symbole du cours souhaité :", value = "^NDX")
 symbol = symbol_list[indice]
