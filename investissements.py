@@ -67,12 +67,25 @@ percentage_df  = pd.DataFrame(
 )
 benef_net = ((percentage_df*invest_values).sum() - len(percentage_df)*invest_values).values[0]
 total_invest = invest_values*len(percentage_df)
+nb_annee = (end_date - start_date).days / 365.25
 col2.metric(
     "Gain", 
     "{:.0f} €".format(
     benef_net
     ),
     delta = "{:.2f}%".format(round(benef_net/total_invest*100, 2))
+)
+col3.metric(
+    "Rendement moyen annuel",
+    "{:.2f}%".format(
+    (benef_net/total_invest*100)/nb_annee
+    )
+)
+col1.metric(
+    "Rendement moyen annuel composé",
+    "{:.2f}%".format(
+    ((1+benef_net/total_invest)**(1/nb_annee)-1)*100
+    )
 )
 
 #graphique
