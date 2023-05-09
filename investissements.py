@@ -1,8 +1,10 @@
+import random
 import datetime
 import pandas as pd
-import yfinance as yf
 import streamlit as st
 import plotly.express as px
+
+from invest_returns import InvestReturns
 
 #Background
 # st.markdown(
@@ -10,7 +12,7 @@ import plotly.express as px
 # <style>
 # [data-testid="stAppViewContainer"]{
 #     background-image: url(
-#         https://t3.ftcdn.net/jpg/05/34/10/18/360_F_534101844_xIyxkPs1EBHj7kFULi1burnV7qlgx5Y4.jpg
+#         https://media.istockphoto.com/id/175600020/photo/money-pile-100-dollar-bills.jpg?b=1&s=170667a&w=0&k=20&c=yH3DQty7oarHDI_FW5ufcpfRozOHizU2oWG2_u3GCXo=
 #         );
 #     background-size: 100%, 100%;
 #     background-position: 100%, center;
@@ -58,34 +60,28 @@ total_invest = col3.metric(
     )
     )
 
-df = yf.download(symbol, start=start_date, end=end_date)
+# Calcul de benefice et rendement
+calculateur = InvestReturns(symbol)
+calculateur.returns(invest_values, start_date, end_date)
 
-# sélection uniquement des fins de mois
-monthly_returns = df.resample('M')['Adj Close'].last().dropna().loc[start_date:end_date]
-percentage_df  = pd.DataFrame(
-    {"percentage" : monthly_returns[-1]/monthly_returns}
-)
-benef_net = ((percentage_df*invest_values).sum() - len(percentage_df)*invest_values).values[0]
-total_invest = invest_values*len(percentage_df)
-nb_annee = (end_date - start_date).days / 365.25
 col2.metric(
     "Gain", 
     "{:.0f} €".format(
-    benef_net
+    calculateur.benef_net
     ),
-    delta = "{:.2f}%".format(round(benef_net/total_invest*100, 2))
+    delta = "{:.2f}%".format(round(calculateur.benef_net/calculateur.total_invest*100, 2))
 )
 col3.metric(
     "Rendement moyen annuel",
     "{:.2f}%".format(
-    (benef_net/total_invest*100)/nb_annee
+    calculateur.rend_moy_annuel*100
     )
 )
 
 #graphique
-df_graph = df.loc[start_date:end_date].resample("M").last()
-fig = px.line(df_graph, x=df_graph.index, y="Close")
-last_value = df_graph["Close"].iloc[-1]
+df_graph = pd.DataFrame(calculateur.monthly_returns.loc[start_date:end_date])
+fig = px.line(df_graph, x=df_graph.index, y="Adj Close")
+last_value = df_graph["Adj Close"].iloc[-1]
 fig.add_shape(
     type="line",
     x0=df_graph.index[0] ,y0=last_value,
@@ -94,3 +90,22 @@ fig.add_shape(
 )
 
 st.plotly_chart(fig)
+
+#Calcul du bénéfice moyen du cours
+st.header("Calcul du rendement moyen du cours")
+period = st.slider(
+    'Selectionner une période à étudier',
+    0, 30, 10)
+rend_moy_annuel_list = []
+for i in range(1000):
+    start_date = datetime.datetime.strptime("1985-10-01", "%Y-%m-%d").date() + datetime.timedelta(days=random.randint(0, (datetime.date.today() - datetime.timedelta(days=365*period) - datetime.datetime.strptime("1985-10-01", "%Y-%m-%d").date()).days))
+    calculateur.returns(
+        invest_values=1, start_date=start_date, end_date=start_date+datetime.timedelta(days=365*period)
+        )
+    rend_moy_annuel_list.append(calculateur.rend_moy_annuel)
+
+st.metric("Rendement annuel moyen",
+    "{:.2f}%".format(
+    round(pd.Series(rend_moy_annuel_list).mean(),2)
+    )
+)
