@@ -81,12 +81,6 @@ col3.metric(
     (benef_net/total_invest*100)/nb_annee
     )
 )
-col1.metric(
-    "Rendement moyen annuel composé",
-    "{:.2f}%".format(
-    ((1+benef_net/total_invest)**(1/nb_annee)-1)*100
-    )
-)
 
 #graphique
 df_graph = df.loc[start_date:end_date].resample("M").last()
