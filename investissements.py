@@ -109,3 +109,5 @@ st.metric("Rendement annuel moyen",
     round(pd.Series(rend_moy_annuel_list).mean(),2)
     )
 )
+
+
