@@ -106,7 +106,7 @@ for i in range(1000):
 
 st.metric("Rendement annuel moyen",
     "{:.2f}%".format(
-    round(pd.Series(rend_moy_annuel_list).mean(),2)
+    round(pd.Series(rend_moy_annuel_list).mean(),2)*100
     )
 )
 
