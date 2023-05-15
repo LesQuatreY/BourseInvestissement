@@ -79,7 +79,7 @@ col3.metric(
 )
 
 #graphique
-df_graph = pd.DataFrame(calculateur.monthly_returns.loc[start_date:end_date])
+df_graph = pd.DataFrame(calculateur.monthly_returns.loc[start_date:(end_date+datetime.timedelta(days=30))])
 fig = px.line(df_graph, x=df_graph.index, y="Adj Close")
 last_value = df_graph["Adj Close"].iloc[-1]
 fig.add_shape(
@@ -98,13 +98,13 @@ period = st.slider(
     0, 30, 10)
 rend_moy_annuel_list = []
 for i in range(1000):
-    start_date = datetime.datetime.strptime("1985-10-01", "%Y-%m-%d").date() + datetime.timedelta(days=random.randint(0, (datetime.date.today() - datetime.timedelta(days=365*period) - datetime.datetime.strptime("1985-10-01", "%Y-%m-%d").date()).days))
+    start_date = datetime.datetime.strptime("1990-04-01", "%Y-%m-%d").date() + datetime.timedelta(days=random.randint(0, (datetime.date.today() - datetime.timedelta(days=365*period) - datetime.datetime.strptime("1990-04-01", "%Y-%m-%d").date()).days))
     calculateur.returns(
         invest_values=1, start_date=start_date, end_date=start_date+datetime.timedelta(days=365*period)
         )
     rend_moy_annuel_list.append(calculateur.rend_moy_annuel)
 
-st.metric("Rendement annuel moyen",
+st.metric(f"Rendement annuel moyen ({indice})",
     "{:.2f}%".format(
     round(pd.Series(rend_moy_annuel_list).mean(),2)*100
     )
