@@ -23,7 +23,8 @@ from invest_returns import InvestReturns
 # unsafe_allow_html=True)
 
 #Title
-st.title("Calculateur de bénéfice boursier")
+st.title("Calculateur de rendement d'un investissement boursier périodique")
+st.info("Le Dollar Cost Averaging (DCA) est une stratégie d'investissement qui consiste à investir une somme fixe à intervalles réguliers, peu importe le prix de l'actif. Cela permet de lisser les pertes sur le long terme et diminuer son risque.")
 
 # Choix utilisateur
 col1, col2, col3 = st.columns(3)
@@ -40,7 +41,8 @@ symbol_list = {
     "Nasdaq" : "^NDX", 
     "Dow Jones" : "^DJI", 
     "S&P 500": "^GSPC",
-    "Apple": "AAPL", 
+    "Apple": "AAPL",
+    "Monde": "VT",  
     "custom" :""}
 
 indice = col3.selectbox("Cours souhaité :", symbol_list.keys())
@@ -64,6 +66,13 @@ total_invest = col3.metric(
 calculateur = InvestReturns(symbol)
 calculateur.returns(invest_values, start_date, end_date)
 
+col1.metric(
+    "Gain sans DPA",
+    "{:.0f} €".format(
+    calculateur.gain_without_DPA,
+    delta = "{:.2f}%".format(round(calculateur.gain_without_DPA/calculateur.total_invest*100, 2))
+    )
+)
 col2.metric(
     "Gain", 
     "{:.0f} €".format(
@@ -92,13 +101,14 @@ fig.add_shape(
 st.plotly_chart(fig)
 
 #Calcul du bénéfice moyen du cours
-st.header("Calcul du rendement moyen du cours")
+st.header("Calcul du rendement moyen du cours sur une période.")
+st.info("On cherche ici à mesurer l'ésperance de gain sur une période donnée. Pour ceci, on génére aléatoirement deux dates espacées de la période en question puis on calcule la moyenne de rendement sur toutes ces périodes.")
 period = st.slider(
     'Selectionner une période à étudier',
     0, 30, 10)
 rend_moy_annuel_list = []
 for i in range(1000):
-    start_date = datetime.datetime.strptime("1990-04-01", "%Y-%m-%d").date() + datetime.timedelta(days=random.randint(0, (datetime.date.today() - datetime.timedelta(days=365*period) - datetime.datetime.strptime("1990-04-01", "%Y-%m-%d").date()).days))
+    start_date = datetime.datetime.strptime(calculateur.date_min, "%Y-%m-%d").date() + datetime.timedelta(days=random.randint(0, (datetime.date.today() - datetime.timedelta(days=365*period) - datetime.datetime.strptime(calculateur.date_min, "%Y-%m-%d").date()).days))
     calculateur.returns(
         invest_values=1, start_date=start_date, end_date=start_date+datetime.timedelta(days=365*period)
         )

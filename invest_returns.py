@@ -7,9 +7,12 @@ class InvestReturns:
         self.monthly_returns = yf.download(
             symbol
             ).resample('M')['Adj Close'].last().dropna()
+        self.date_min = str(self.monthly_returns.index[0].date())
+        self.end_date = 0
 
-    
-    def returns(self, invest_values, start_date=pd.to_datetime("1990-04-01"), end_date=datetime.datetime.now()):
+    def returns(
+        self, invest_values, start_date=pd.to_datetime("1990-04-01"), end_date=datetime.datetime.now()
+        ):
         gain_df = pd.DataFrame(
             self.monthly_returns.loc[start_date:end_date][-1]/self.monthly_returns.loc[start_date:end_date]
         )
@@ -17,3 +20,5 @@ class InvestReturns:
         self.benef_net = ((gain_df*invest_values).sum() - len(gain_df)*invest_values).values[0]
         self.total_invest = invest_values*len(gain_df)
         self.rend_moy_annuel = (self.benef_net/self.total_invest)/self.nb_annee
+        self.gain_without_DPA = (self.monthly_returns.loc[start_date:end_date][-1]-self.monthly_returns.loc[start_date:end_date][0])/self.monthly_returns.loc[start_date:end_date][0]*self.total_invest
+        
